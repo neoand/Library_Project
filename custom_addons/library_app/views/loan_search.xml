@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_library_book_loan_search" model="ir.ui.view">
+    <field name="name">library.book.loan.search</field>
+    <field name="model">library.book.loan</field>
+    <field name="arch" type="xml">
+      <search string="Search Loans">
+        <!-- Campos de pesquisa -->
+        <field name="book_id"/>
+        <field name="partner_id"/>
+        <field name="loan_date" string="Loan Date"/>
+        <field name="return_date" string="Return Date"/>
+        <filter name="state_open" string="Open" domain="[('state','=','open')]"/>
+        <filter name="state_closed" string="Closed" domain="[('state','=','closed')]"/>
+        <!-- Ordenação padrão -->
+        <field name="state" filter_domain="[]"/>
+      </search>
+    </field>
+  </record>
+</odoo>

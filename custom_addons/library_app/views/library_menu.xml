@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <!-- menu raiz -->
+  <menuitem id="menu_library_root" name="Library" sequence="10"/>
+
+  <!-- Books -->
+  <menuitem
+    id="menu_library_books"
+    name="Books"
+    parent="menu_library_root"
+    action="action_library_book"
+    sequence="1"/>
+
+  <!-- Authors -->
+  <menuitem
+    id="menu_library_authors"
+    name="Authors"
+    parent="menu_library_root"
+    action="action_library_author"
+    sequence="2"/>
+
+  <!-- Categories -->
+  <menuitem
+    id="menu_library_categories"
+    name="Categories"
+    parent="menu_library_root"
+    action="action_library_book_category"
+    sequence="3"/>
+
+  <!-- Stages -->
+  <menuitem
+    id="menu_library_stages"
+    name="Stages"
+    parent="menu_library_root"
+    action="action_library_book_stage"
+    sequence="4"/>
+
+  <!-- Loans -->
+  <menuitem
+    id="menu_library_loans"
+    name="Loans"
+    parent="menu_library_root"
+    action="action_library_book_loan"
+    sequence="5"/>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_library_book_loan_list" model="ir.ui.view">
+    <field name="name">library.book.loan.list</field>
+    <field name="model">library.book.loan</field>
+    <field name="arch" type="xml">
+      <list string="Loans">
+        <field name="book_id"/>
+        <field name="partner_id"/>
+        <field name="loan_date"/>
+        <field name="return_date"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+</odoo>

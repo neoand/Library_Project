@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inherit da SEARCH VIEW de res.partner -->
+    <record id="view_res_partner_search_inherit_author" model="ir.ui.view">
+        <field name="name">res.partner.search.inherit.author</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <!-- Insere filtros adicionais no bloco <search> -->
+            <xpath expr="//search" position="inside">
+                <!-- Filtro rápido: somente autores -->
+                <filter name="is_author_only"
+                        string="Authors"
+                        domain="[('is_author', '=', True)]"/>
+
+                <!-- Campo de busca por ISBN dos livros do autor (via related M2O/One2many não é direto).
+                     Mantemos simples: busca por website ou awards como exemplo. -->
+                <separator/>
+                <filter name="has_awards"
+                        string="Has awards"
+                        domain="[('awards', '!=', False)]"/>
+
+                <!-- Agrupamentos úteis -->
+                <group expand="0" string="Group by">
+                    <filter name="group_is_author"
+                            string="Is author"
+                            context="{'group_by': 'is_author'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

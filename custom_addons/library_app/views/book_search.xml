@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_library_book_search" model="ir.ui.view">
+        <field name="name">library.book.search</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Title"/>
+                <field name="author_id" string="Author"/>
+                <field name="isbn" string="ISBN"/>
+
+                <filter string="My Books" name="filter_my_books"
+                        domain="[('user_id', '=', uid)]"/>
+
+                <filter string="Available Books" name="filter_available"
+                        domain="[('stage_id.name', '=', 'Available')]"/>
+
+                <filter string="Borrowed Books" name="filter_borrowed"
+                        domain="[('stage_id.name', '=', 'Borrowed')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_by_stage"
+                            context="{'group_by': 'stage_id'}"/>
+                    <filter string="Author" name="group_by_author"
+                            context="{'group_by': 'author_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

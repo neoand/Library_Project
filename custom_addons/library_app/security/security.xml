@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Regras de Acesso para Library Book -->
+        <record id="access_library_book_user" model="ir.model.access">
+            <field name="name">library.book user access</field>
+            <field name="model_id" ref="model_library_book"/>
+            <field name="group_id" ref="base.group_user"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <record id="access_library_book_manager" model="ir.model.access">
+            <field name="name">library.book manager access</field>
+            <field name="model_id" ref="model_library_book"/>
+            <field name="group_id" ref="base.group_system"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- Regras de Acesso para Book Category -->
+        <record id="access_library_book_category_user" model="ir.model.access">
+            <field name="name">library.book.category user access</field>
+            <field name="model_id" ref="model_library_book_category"/>
+            <field name="group_id" ref="base.group_user"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <record id="access_library_book_category_manager" model="ir.model.access">
+            <field name="name">library.book.category manager access</field>
+            <field name="model_id" ref="model_library_book_category"/>
+            <field name="group_id" ref="base.group_system"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- Regras de Acesso para Book Stage -->
+        <record id="access_library_book_stage_user" model="ir.model.access">
+            <field name="name">library.book.stage user access</field>
+            <field name="model_id" ref="model_library_book_stage"/>
+            <field name="group_id" ref="base.group_user"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <record id="access_library_book_stage_manager" model="ir.model.access">
+            <field name="name">library.book.stage manager access</field>
+            <field name="model_id" ref="model_library_book_stage"/>
+            <field name="group_id" ref="base.group_system"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- Regras de Acesso para Autor em res.partner -->
+        <record id="access_res_partner_author_user" model="ir.model.access">
+            <field name="name">res.partner author field access</field>
+            <field name="model_id" ref="model_res_partner"/>
+            <field name="group_id" ref="base.group_user"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Regras de Registro para controle de acesso granular -->
+        <record id="library_book_user_rule" model="ir.rule">
+            <field name="name">Library Book User Rule</field>
+            <field name="model_id" ref="model_library_book"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <record id="library_book_manager_rule" model="ir.rule">
+            <field name="name">Library Book Manager Rule</field>
+            <field name="model_id" ref="model_library_book"/>
+            <field name="domain_force">[(1, '=', 1)]</field> <!-- Acesso total -->
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+    </data>
+</odoo>
