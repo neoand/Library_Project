@@ -63,5 +63,5 @@ Features include:
     'installable': True,
     'application': True,
     'auto_install': False,
-    'icon': "static/description/icon.png",
+    'icon': "/library_app/static/description/icon.png",
 }

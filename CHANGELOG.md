@@ -5,6 +5,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Corrected an issue where the module icon was a PNG with an SVG extension, preventing it from rendering correctly. The icon is now a proper PNG and has been resized to 256x256 for better quality.
+- Fixed a series of test failures caused by improper test data cleanup. The tests now correctly handle existing data and all pass successfully.
+
+### Added
+- Expanded the test suite to include validation for ISBN format and positive page numbers.
+
+## [1.0.1] - 2025-09-20
+
+### Improvements
+- UI cleanup in backend views:
+  - Added `title` attributes to FontAwesome icons to remove warnings
+  - Migrated deprecated `kanban-box` templates to modern `card` in kanban views
+- Loan model fixes and enhancements:
+  - Correct `loan_duration` computation (ongoing loans compute against today)
+  - Correct `is_overdue` computation (based on `expected_return_date` and `state`)
+- Testing and CI:
+  - Added initial unit tests for books, loans, and partner integration
+  - Introduced GitHub Actions workflow to run tests with PostgreSQL service
+
+### Removed
+- Eliminated any lingering references to stock/product logic in loans
+
+### Notes
+- Module update runs clean; an unrelated system warning about `confirm.stock.sms` may appear but is not part of this module.
+
 ## [1.0.0] - 2024-09-20
 
 ### 🚀 Major Release - Architecture Refactor

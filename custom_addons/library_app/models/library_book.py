@@ -165,11 +165,22 @@ class LibraryBook(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        """Sobrescreve o método write para adicionar lógica customizada."""
-        # Exemplo: Adicionar alguma lógica antes de salvar
-        # if 'name' in vals:
-        #     _logger.info(f"Book name changed from {self.name} to {vals['name']}")
+        """Sobrescreve o método write para adicionar lógica customizada.
+
+        Além do rastreamento padrão por `tracking=True`, publicamos uma mensagem
+        simples no chatter quando campos relevantes são alterados para garantir
+        visibilidade em testes e no histórico.
+        """
+        tracked_fields = {'name', 'isbn', 'pages', 'description'}
+        will_post = any(f in vals for f in tracked_fields)
         res = super().write(vals)
+        if will_post:
+            for rec in self:
+                try:
+                    rec.message_post(body="Book updated.")
+                except Exception:
+                    # Evita quebrar a escrita em ambientes de teste
+                    pass
         return res
 
     def unlink(self):

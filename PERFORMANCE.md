@@ -9,18 +9,22 @@ This document tracks performance metrics and optimization strategies for the lib
 - **Previous**: ~2.0s (estimated with product inheritance)
 - **Improvement**: 77% faster loading
 
-### Database Performance
-```sql
--- Key tables and their current state
-library_book: ~X records
-library_book_loan: ~Y records  
-res_partner (authors): ~Z records
+### Database Performance (Baseline as of 2025-09-20)
 
--- Query performance targets
-- Book list view: < 200ms
-- Loan operations: < 100ms
-- Search operations: < 300ms
-```
+#### Table Sizes
+| Table                     | Size   |
+|---------------------------|--------|
+| library_book              | 112 kB |
+| library_book_category     | 96 kB  |
+| library_book_stage        | 64 kB  |
+| library_book_loan         | 48 kB  |
+| library_book_category_rel | 40 kB  |
+
+#### Record Counts
+| Table             | Records |
+|-------------------|---------|
+| library_book      | 2       |
+| library_book_loan | 4       |
 
 ## 🎯 Performance Targets
 
@@ -179,5 +183,5 @@ def profile_performance(func):
 
 ---
 
-**Last Updated**: 2024-09-20  
-**Next Review**: 2024-12-20
+**Last Updated**: 2025-09-20  
+**Next Review**: 2025-12-20
