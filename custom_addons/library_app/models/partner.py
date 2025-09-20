@@ -49,6 +49,18 @@ class ResPartner(models.Model):
         for partner in self:
             partner.is_author = not partner.is_author
 
+    def action_view_books(self):
+        """Abre uma visualização com todos os livros do autor."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Books by %s' % self.name,
+            'view_mode': 'list,form',
+            'res_model': 'library.book',
+            'domain': [('author_id', '=', self.id)],
+            'context': {'default_author_id': self.id},
+        }
+
     def action_open_author_books(self):
         """Abre os livros deste autor em kanban/list/form."""
         self.ensure_one()

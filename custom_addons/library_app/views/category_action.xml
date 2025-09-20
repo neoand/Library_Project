@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="action_library_book_category" model="ir.actions.act_window">
-        <field name="name">Categories</field>
-        <field name="res_model">library.book.category</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Create your first book category
-            </p>
-        </field>
-    </record>
+    <data>
+        <record id="action_library_book_category" model="ir.actions.act_window">
+            <field name="name">Categories</field>
+            <field name="res_model">library.book.category</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="view_id" ref="library_book_category_view_kanban"/>
+            <field name="context">{'search_default_active': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first book category!
+                </p>
+                <p>
+                    Organize your library books into categories with full audit trail.
+                    All changes will be tracked in the chatter for complete transparency.
+                </p>
+            </field>
+        </record>
+    </data>
 </odoo>

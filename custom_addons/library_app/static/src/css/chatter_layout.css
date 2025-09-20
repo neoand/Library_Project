@@ -1,0 +1,96 @@
+/* ==========================================================================
+   Odoo 18 - Chatter Layout Optimization for Library App
+   ========================================================================== */
+
+/* 
+ * Reduz a largura da coluna de atividades para dar mais espaço ao formulário
+ * Baseado nas instruções técnicas para correção do layout do chatter
+ */
+
+/* Ajusta o container principal do chatter */
+.o_Chatter {
+    flex: 0 0 300px !important;
+    max-width: 300px !important;
+    min-width: 280px !important;
+}
+
+/* Dá mais espaço para o formulário principal */
+.o_Form_view .o_Form_sheet_bg {
+    flex: 1 1 70% !important;
+    min-width: 0; /* Permite que o flex funcione corretamente */
+}
+
+/* Otimização adicional do layout do formulário */
+.o_Form_view {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+.o_Form_sheet_bg {
+    order: 1;
+    padding-right: 15px; /* Espaçamento entre form e chatter */
+}
+
+.o_Chatter {
+    order: 2;
+    border-left: 1px solid #dee2e6;
+    padding-left: 15px;
+    background-color: #f8f9fa;
+}
+
+/* Ajusta o scrolling do chatter */
+.o_Chatter .o_Chatter_scrollPanel {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+/* Melhora a responsividade em telas menores */
+@media (max-width: 1200px) {
+    .o_Chatter {
+        flex: 0 0 250px !important;
+        max-width: 250px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .o_Form_view {
+        flex-direction: column !important;
+    }
+    
+    .o_Chatter {
+        flex: 1 1 auto !important;
+        max-width: none !important;
+        border-left: none;
+        border-top: 1px solid #dee2e6;
+        padding-left: 0;
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+    
+    .o_Form_sheet_bg {
+        padding-right: 0;
+    }
+}
+
+/* Otimiza o carregamento das atividades */
+.o_Chatter .o_mail_activity {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Melhora visual dos seguidores */
+.o_Chatter .o_followers {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Changelog: 
+ * - 2025-09-20: Implementação inicial do layout otimizado do chatter
+ * - Correção da largura excessiva da coluna de atividades (~40%)
+ * - Aplicação da nova sintaxe <chatter/> para Odoo 18
+ * - Adição de responsividade para diferentes tamanhos de tela
+ */

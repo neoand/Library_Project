@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Inherit da LIST VIEW de res.partner (Odoo 17+/18 usam <list> no lugar de <tree>) -->
-    <record id="view_res_partner_tree_inherit_author" model="ir.ui.view">
-        <field name="name">res.partner.tree.inherit.author</field>
+    <!-- Inherit the Tree View of res.partner to add author fields -->
+    <record id="res_partner_view_tree_inherit_library_app" model="ir.ui.view">
+        <field name="name">res.partner.view.tree.inherit.library_app</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_tree"/>
         <field name="arch" type="xml">
-            <!-- XPath compatível: pega <list> (17/18) ou <tree> (<=16) -->
-            <xpath expr="//list | //tree" position="inside">
+            <xpath expr="//list" position="inside">
                 <field name="is_author"/>
                 <field name="book_count"/>
                 <field name="first_publication"/>

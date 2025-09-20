@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_form_res_partner_author" model="ir.ui.view">
-        <field name="name">res.partner.form.inherit.author</field>
+    <!-- Author List View -->
+    <record id="res_partner_author_view_list" model="ir.ui.view">
+        <field name="name">res.partner.author.view.list</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Authors">
+                <field name="name"/>
+                <field name="book_count"/>
+                <field name="first_publication"/>
+                <field name="last_publication"/>
+                <field name="website"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="res_partner_author_view_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.view.form.inherit.author</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">

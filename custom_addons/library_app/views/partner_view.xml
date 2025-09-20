@@ -6,40 +6,45 @@
     <field name="inherit_id" ref="base.view_partner_form"/>
     <field name="arch" type="xml">
 
-      <!-- insere campos antes do notebook padrão -->
-      <xpath expr="//sheet/notebook" position="before">
-        <group string="Author Info">
+      <!-- Adiciona o campo 'is_author' perto do nome -->
+      <xpath expr="//field[@name='name']/.." position="after">
+        <group>
           <field name="is_author"/>
-          <field name="birth_date"/>
-          <field name="death_date"/>
-          <field name="birth_place"/>
-        </group>
-        <group string="Author Metrics">
-          <field name="book_count" readonly="1"/>
-          <field name="first_publication" readonly="1"/>
-          <field name="last_publication" readonly="1"/>
         </group>
       </xpath>
 
-      <!-- acrescenta páginas ao notebook -->
+      <!-- Adiciona uma nova página 'Author Details' ao notebook -->
       <xpath expr="//notebook" position="inside">
-        <page string="Biography">
-          <field name="biography"/>
-        </page>
-        <page string="Awards &amp; Website">
+        <page string="Author Details" name="author_details" invisible="not is_author">
           <group>
+            <group string="Biographical Info">
+              <field name="birth_date"/>
+              <field name="death_date"/>
+              <field name="birth_place"/>
+            </group>
+            <group string="Author Metrics">
+              <field name="book_count" readonly="1"/>
+              <field name="first_publication" readonly="1"/>
+              <field name="last_publication" readonly="1"/>
+            </group>
+          </group>
+          <group string="Biography &amp; Awards">
+            <field name="biography"/>
             <field name="awards"/>
             <field name="website"/>
           </group>
         </page>
       </xpath>
 
-      <!-- adiciona botão sem usar attrs -->
-      <xpath expr="//sheet" position="inside">
-        <button name="action_open_author_books"
+      <!-- Adiciona o botão 'View Books' na barra de botões superior -->
+      <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+        <button name="action_view_books"
                 type="object"
-                string="View Books"
-                class="btn-primary"/>
+                class="oe_stat_button"
+                icon="fa-book"
+                invisible="not is_author">
+          <field name="book_count" widget="statinfo" string="Books"/>
+        </button>
       </xpath>
 
     </field>

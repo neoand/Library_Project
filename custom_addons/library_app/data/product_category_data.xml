@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <data>
+        <!-- Product Category for Library Books -->
+        <record id="library_books_category" model="product.category">
+            <field name="name">Library Books</field>
+            <field name="property_cost_method">standard</field>
+            <field name="property_valuation">manual_periodic</field>
+            <field name="removal_strategy_id" ref="stock.removal_fifo"/>
+        </record>
+        
+        <!-- Stock Location for Library Loans -->
+        <record id="stock_location_library_loans" model="stock.location">
+            <field name="name">Library Loans</field>
+            <field name="usage">internal</field>
+            <field name="location_id" ref="stock.stock_location_locations"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+    </data>
+</odoo>

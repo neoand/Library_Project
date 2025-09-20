@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- Lista de estágios -->
-    <record id="view_list_library_book_stage" model="ir.ui.view">
-        <field name="name">library.book.stage.list</field>
+    <!-- List View for stages -->
+    <record id="library_book_stage_view_list" model="ir.ui.view">
+        <field name="name">library.book.stage.view.list</field>
         <field name="model">library.book.stage</field>
         <field name="arch" type="xml">
-            <list string="Book Stages"
-                  decoration-primary="is_default"
-                  decoration-muted="book_count == 0">
-                <field name="name"/>
-                <field name="code"/>
-                <field name="sequence"/>
-                <field name="is_default"/>
-                <field name="book_count" widget="statinfo" string="Books"/>
-            </list>
+                        <list string="Book Stages"
+                                    decoration-primary="is_default"
+                                    decoration-muted="book_count == 0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="sequence"/>
+                                <field name="is_default"/>
+                                <field name="book_count" widget="statinfo" string="Books"/>
+                        </list>
         </field>
     </record>
 
@@ -45,21 +45,9 @@
                         </page>
                     </notebook>
                 </sheet>
-                <!-- Chatter -->
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
+                <!-- Chatter removed to avoid rendering issues in this view -->
             </form>
         </field>
-    </record>
-
-    <!-- Ação e menu (se aplicável no seu app) -->
-    <record id="action_library_book_stage" model="ir.actions.act_window">
-        <field name="name">Book Stages</field>
-        <field name="res_model">library.book.stage</field>
-        <field name="view_mode">list,form</field>
     </record>
 
 </odoo>

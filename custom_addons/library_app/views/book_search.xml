@@ -8,21 +8,36 @@
                 <field name="name" string="Title"/>
                 <field name="author_id" string="Author"/>
                 <field name="isbn" string="ISBN"/>
+                <field name="description" string="Description"/>
 
                 <filter string="My Books" name="filter_my_books"
                         domain="[('user_id', '=', uid)]"/>
-
-                <filter string="Available Books" name="filter_available"
-                        domain="[('stage_id.name', '=', 'Available')]"/>
-
-                <filter string="Borrowed Books" name="filter_borrowed"
-                        domain="[('stage_id.name', '=', 'Borrowed')]"/>
+                        
+                <separator/>
+                
+                <filter string="Available" name="filter_available"
+                        domain="[('book_status', '=', 'available')]"/>
+                <filter string="Borrowed" name="filter_borrowed"
+                        domain="[('book_status', '=', 'borrowed')]"/>
+                <filter string="Lost" name="filter_lost"
+                        domain="[('book_status', '=', 'lost')]"/>
+                        
+                <separator/>
+                
+                <filter string="Active" name="filter_active"
+                        domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="filter_archived"
+                        domain="[('active', '=', False)]"/>
 
                 <group expand="0" string="Group By">
-                    <filter string="Status" name="group_by_stage"
+                    <filter string="Status" name="group_by_book_status"
+                            context="{'group_by': 'book_status'}"/>
+                    <filter string="Stage" name="group_by_stage"
                             context="{'group_by': 'stage_id'}"/>
                     <filter string="Author" name="group_by_author"
                             context="{'group_by': 'author_id'}"/>
+                    <filter string="Responsible" name="group_by_user"
+                            context="{'group_by': 'user_id'}"/>
                 </group>
             </search>
         </field>
