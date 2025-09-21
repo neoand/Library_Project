@@ -99,53 +99,91 @@ loss_description = fields.Text()      # Descrição da perda
 - **Flexibilidade**: Campos e lógicas específicas para empréstimos
 
 #### **⚠️ Negativas:**
-- **Re-implementação**: Campos básicos como name, description implementados do zero
-- **Menos integração**: Não integra automaticamente com módulos comerciais do Odoo
-- **Código adicional**: Métodos compute próprios para controle de estoque
-
-#### **🔄 Mitigações:**
-- Campos básicos são simples de implementar
-- Integração comercial não era requisito do projeto
-- Métodos compute são mais eficientes que joins complexos
-
-### 🎯 **Critérios para Decisões Futuras**
-
-#### **✅ Use Herança de product.product quando:**
-- Sistema de **vendas** de livros (livraria/e-commerce)
-- Necessita **preços, descontos, impostos**
-- Integração com **módulos comerciais** (sale, purchase, account)
-- **Gestão comercial** completa
-
-#### **✅ Use Modelo Independente quando:**
-- Sistema de **biblioteca/empréstimo**
-- Foco em **controle acadêmico/institucional**
-- **Performance** é crítica
-- Domínio **muito específico**
-- **Simplicidade** é prioritária
+- **Reutilização perdida**: Funcionalidades de produto (ex: variantes) teriam que ser recriadas se necessárias
+- **Esforço inicial**: Maior esforço para criar campos e lógicas do zero
 
 ### 📝 **Lições Aprendidas**
+- Herança no Odoo é poderosa, mas deve ser usada com cautela
+- Avaliar o domínio do problema é mais importante que reutilização de código
+- Performance deve ser considerada desde o início da arquitetura
 
-> **"Nem sempre a reutilização é a melhor opção. Às vezes, simplicidade e foco no domínio específico superam a reutilização de código."**
+---
 
-1. **Analise o domínio primeiro**: Biblioteca ≠ Loja, portanto modelos diferentes
-2. **KISS > DRY quando domínios diferem**: Simplicidade pode ser mais valiosa que reutilização
-3. **Performance importa**: Menos dependências = sistema mais rápido
-4. **Teste early, test often**: Problemas de herança aparecem cedo no desenvolvimento
+## ADR-002: Refatoração da Estrutura de Menus
 
-### 📊 **Métricas de Sucesso**
+**Data**: 2025-09-21
+**Status**: ✅ Implementado
 
-- ✅ **Erro resolvido**: `ValueError: Invalid field 'property_cost_method'` eliminado
-- ✅ **Tempo de carregamento**: Reduzido de ~2s para ~0.45s no log de loading
-- ✅ **Complexidade do código**: 253 linhas finais, código focado e legível
-- ✅ **Dependências**: Reduzidas de 7+ para 4 módulos essenciais
-- ✅ **Funcionalidades**: Todas as funcionalidades de biblioteca mantidas/melhoradas
+### 📋 **Contexto**
+A estrutura inicial de menus do módulo `library_app` era "plana", com todos os itens no mesmo nível hierárquico. Embora funcional, não seguia as melhores práticas de usabilidade do Odoo.
 
-### 🔗 **Referências**
+### 🚨 **Problema**
+- **Usabilidade**: Menus de configuração (como "Estágios") misturados com menus de operações diárias (como "Empréstimos").
+- **Escalabilidade**: Adicionar novos itens de configuração poluiria ainda mais o menu principal.
+- **Padrão Odoo**: A estrutura não correspondia à experiência do usuário encontrada em módulos nativos do Odoo, como Vendas ou Contatos.
 
-- Commit: Removal of product.product inheritance (2024-09-20)
-- Files changed: `models/library_book.py`, `__manifest__.py`, `views/book_view.xml`
-- Error logs: `CURRENT_ISSUE_STATUS.md`
-- Testing: Module update successful without errors
+### 🎯 **Decisão**
+Reestruturar os menus para agrupar itens por função, seguindo o padrão do Odoo: **Operações**, **Catálogos** e **Configuração**.
+
+**ANTES** (Estrutura Plana):
+```
+Biblioteca/
+├── Livros
+├── Autores
+├── Mutuários
+├── Empréstimos
+├── Categorias
+└── Estágios
+```
+
+**DEPOIS** (Estrutura Agrupada):
+```
+Biblioteca/
+├── Operações
+│   ├── Livros
+│   ├── Empréstimos
+│   └── Mutuários
+├── Catálogos
+│   ├── Autores
+│   └── Categorias de Livros
+└── Configuração
+    └── Estágios dos Livros
+```
+
+### ✅ **Justificativa**
+1.  **Consistência**: Alinha o módulo com o design de UX do Odoo, tornando-o mais intuitivo.
+2.  **Organização Lógica**: Separa claramente as tarefas do dia a dia das configurações que são raramente alteradas.
+3.  **Manutenibilidade**: Facilita a adição de novos menus no futuro sem comprometer a organização.
+
+---
+
+## ADR-003: Remoção de Botões do Módulo de Estoque via CSS
+
+**Data**: 2025-09-21
+**Status**: ✅ Implementado
+
+### 📋 **Contexto**
+Mesmo após remover a dependência direta do `product.product`, o módulo `stock` (uma dependência transitiva) ainda adicionava botões de "Lotes/Números de Série" na visão de formulário do `res.partner`.
+
+### 🚨 **Problema**
+- **Interface Poluída**: O botão era irrelevante para o contexto da biblioteca e confundia o usuário.
+- **Dificuldade de Remoção via XML**: A tentativa de remover o botão via `xpath` falhou porque o botão é adicionado dinamicamente com base em grupos de segurança (`stock.group_production_lot`), tornando o `xpath` instável.
+
+### 🎯 **Decisão**
+Em vez de usar `xpath`, a decisão foi ocultar o botão de forma mais robusta e garantida usando **CSS**.
+
+**Implementação** (em `static/src/css/chatter_layout.css`):
+```css
+/* Oculta o botão de Lotes/Números de Série da visão de parceiro */
+.o_form_view .oe_button_box .oe_stat_button[name="action_view_stock_lots"] {
+    display: none !important;
+}
+```
+
+### ✅ **Justificativa**
+1.  **Robustez**: A solução CSS funciona independentemente dos grupos de segurança do usuário ou de como o botão é renderizado.
+2.  **Simplicidade**: Evita a complexidade de herdar e modificar a view com `xpath` condicionais.
+3.  **Manutenção**: Centraliza as customizações de estilo em um único arquivo CSS, facilitando futuras modificações.
 
 ---
 

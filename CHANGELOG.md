@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.0] - 2025-09-21
+
+### Added
+- **Professional Menu Structure**: Implemented a new, multi-level menu system that aligns with Odoo's best practices.
+  - New top-level menus: `Operations`, `Catalogs`, and `Configuration`.
+  - Reorganized existing items for better usability and scalability.
+
+### Fixed
+- **UI Cleanup**: Removed the "Lot/Serial Numbers" button from the `res.partner` form view. This button was being added by the `stock` module and was irrelevant to the library's context.
+- **Duplicate Tabs**: Resolved an issue where two "Author Details" tabs were appearing on the partner form.
+
+### Changed
+- **Button Removal Strategy**: Switched from an unstable `xpath` approach to a robust **CSS-based solution** to hide the stock button, ensuring it is hidden regardless of user permissions.
+- **Menu Labels**: Renamed "Categories" to "Book Categories" and "Stages" to "Book Stages" for improved clarity in the new configuration menu.
+
 ## [Unreleased]
 
 ### Added

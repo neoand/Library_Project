@@ -2,20 +2,23 @@
 
 ## 🚀 Current Project Status (September 2025)
 
-**MAJOR MILESTONE ACHIEVED**: The project has been completely restructured with professional documentation and development tools. All architectural issues have been resolved and the system is now production-ready.
+**MAJOR MILESTONE ACHIEVED**: The project is stable, fully refactored, and production-ready. All major architectural issues have been resolved, the UI has been optimized, and the system is documented.
 
 ### ✅ Recent Achievements
-- **Architecture Refactored**: Removed `product.product` inheritance - books are now standalone entities (77% performance improvement)
-- **Complete Documentation System**: Implemented ADR pattern, development guides, performance monitoring, and testing strategies
-- **Professional Tooling**: Created `dev_tools.sh` with 9 automated utilities for development workflow
-- **GitHub Integration**: Full repository organization with proper .gitignore, README, and project structure
+- **Architecture Refactored**: Removed `product.product` inheritance; books are now standalone entities (77% performance improvement).
+- **UI/UX Overhaul**:
+  - **Menu Restructuring**: Implemented a professional, multi-level menu (`Operations`, `Catalogs`, `Configuration`) following Odoo best practices.
+  - **UI Cleanup**: Removed irrelevant UI elements (e.g., "Lot/Serial Numbers" button from the `stock` module) using a robust CSS-based approach.
+  - **Fixed UI Bugs**: Resolved duplicate "Author Details" tab issue.
+- **Complete Documentation System**: Implemented ADR pattern, development guides, and updated all project documentation.
+- **Professional Tooling**: `dev_tools.sh` and `start_odoo.sh` scripts are fully operational.
 
 ### 📊 Current Technical State
-- **Main Module**: `library_app` - Fully functional library management system
-- **Performance**: Optimized queries, removed product inheritance overhead
-- **Code Quality**: Following Odoo 18 best practices, comprehensive documentation
-- **Testing**: Strategy defined, ready for implementation
-- **Deployment**: Scripts ready, configuration optimized
+- **Main Module**: `library_app` - A fully functional and optimized library management system.
+- **Performance**: High-performance queries with no `product` overhead.
+- **Code Quality**: Follows Odoo 18 best practices, with clear separation of concerns.
+- **User Interface**: Clean, intuitive, and consistent with Odoo's native UX.
+- **Testing**: Strategy defined, ready for implementation.
 
 ## Architecture Overview
 
@@ -82,42 +85,50 @@ The `list_modules.py` script uses `eval()` to safely parse `__manifest__.py` fil
 ## Custom Module Patterns (`library_app`)
 
 ### 🚨 CRITICAL ARCHITECTURAL CHANGE (September 2025)
-**Books are NO LONGER product.product derivatives!** The architecture was refactored to remove product inheritance:
-
-**Before**: `_inherit = ['product.product', 'mail.thread', 'mail.activity.mixin']`
-**Now**: `_name = 'library.book'` with `_inherit = ['mail.thread', 'mail.activity.mixin']`
-
-**Why Changed**: 77% performance improvement, simplified codebase, removed unnecessary product complexity
+**Books are NO LONGER product.product derivatives!** The architecture was refactored to remove product inheritance. This is a core concept of the project.
 
 ### Current Model Architecture
-**Books as Standalone Entities**: Core pattern is now independent book management
-- Direct book fields: `isbn`, `pages`, `cover`, `author_id`, `name`, `description`
-- Tracking enabled: `name = fields.Char(tracking=True)`  
-- Rich descriptions: `description = fields.Html(tracking=True)`
-- No product overhead or dependencies
+**Books as Standalone Entities**: The system manages books, loans, and borrowers as independent but related objects. There is no dependency on `product` or `stock` modules for core logic.
 
-### 📁 Current File Structure
+### 📁 Current File Structure & Menu
+The file structure is organized for clarity. Note the new menu structure implemented in `library_menu.xml`.
+
+**New Menu Structure (`library_menu.xml`):**
+```
+Library/
+├── Operations
+│   ├── Books
+│   ├── Loans
+│   └── Borrowers
+├── Catalogs
+│   ├── Authors
+│   └── Book Categories
+└── Configuration
+    └── Book Stages
+```
+
+**File Structure:**
 ```
 custom_addons/library_app/
-├── __manifest__.py          # Dependencies: base, contacts, mail, web (NO stock)
-├── models/                  
-│   ├── library_book.py     # Main entity (standalone, no product inheritance)
-│   ├── loan.py             # Loan tracking system
-│   ├── partner.py          # Extends res.partner for authors AND borrower management
-│   ├── stage.py            # Workflow stages  
-│   └── category.py         # Book categories (custom, not product.category)
-├── views/                   # UI definitions (separate from actions)
-│   ├── library_menu.xml    # Menu structure
-│   ├── book_view.xml       # Form/tree views
-│   ├── book_action.xml     # Window actions (separate file)
-│   ├── loan_view.xml       # Loan management forms
+├── __manifest__.py
+├── models/
+│   ├── library_book.py
+│   ├── loan.py
+│   ├── partner.py
+│   ├── stage.py
+│   └── category.py
+├── views/
+│   ├── library_menu.xml    # <-- IMPORTANT: Contains the new menu structure
+│   ├── book_view.xml
+│   ├── book_action.xml
+│   ├── loan_view.xml
 │   └── book_kanban.xml     # Kanban view with stages
 ├── security/
 │   ├── security.xml        # Groups and rules  
 │   └── ir.model.access.csv # Model permissions
 ├── static/src/css/         # Custom styling
-│   └── chatter_layout.css  # Chatter UI optimizations
-├── data/                   # NO product_category_data.xml anymore!
+│   └── chatter_layout.css  # <-- Contains CSS to hide stock buttons
+└── data/                   # NO product_category_data.xml anymore!
 │   └── library_book_stage_data.xml  # Default workflow stages
 └── CHATTER_OPTIMIZATION.md # Performance optimizations doc
 ```
@@ -141,14 +152,17 @@ custom_addons/library_app/
 - **Performance optimized**: All computations stored in database with proper triggers for updates
 
 ### View Patterns
-- **Kanban views** require `group_expand='_read_group_stage_ids'` in stage field
+
+- **Menu Structure**: Menus are organized hierarchically into `Operations`, `Catalogs`, and `Configuration` to align with Odoo's UX standards.
+- **UI Cleanup**: When a dependency module (like `stock`) adds unwanted UI elements, the preferred method to remove them is via **CSS** in `static/src/css/chatter_layout.css`, as it's more robust than `xpath`.
+- **Kanban Views**: Require `group_expand='_read_group_stage_ids'` in the stage field
 - **Group expand methods** in Odoo 18 use signature: `_read_group_stage_ids(self, stages, domain)` (no order parameter)
 - **Dynamic field attributes** use direct syntax: `required="condition"` instead of `attrs="{'required': [('condition')]}`
 - **View modes** use `list` instead of deprecated `tree` in Odoo 18 (`view_mode='list,form'`)
 - **Chatter integration** use simplified `<chatter/>` tag instead of verbose div structure
 - **Search views** should include filters for common workflows
 - **Menu sequences** start at 10 for root, increment by 1 for children
-- **Actions defined separately** from views in `*_action.xml` files
+- **Actions defined separately** from views in `*_action.xml` files.
 
 ### Model Relationships
 - **Many2one with domains**: Filter related records (`domain=[('field', '=', value)]`)
@@ -213,22 +227,12 @@ def _check_isbn_format(self):
 
 ## Critical Development Notes
 
-### Module Dependencies
-- Always include `mail` dependency for chatter functionality
-- Add `web` dependency for enhanced UI components
-- ~~Include `stock` dependency when inheriting from `product.product`~~ **NO LONGER NEEDED**
-- Base dependencies: `base`, `contacts` for partner extensions
-
-### Critical Development Notes
-
 ### Module Dependencies - UPDATED ARCHITECTURE
-- **Required**: `mail` dependency for chatter functionality
-- **Required**: `web` dependency for enhanced UI components  
-- **REMOVED**: `stock` dependency - no longer needed after product inheritance removal
-- **Base**: `base`, `contacts` for partner extensions only
+- **Required**: `mail`, `contacts`, `web`.
+- **REMOVED**: `stock` and `product` are no longer direct dependencies for the core logic.
 
 ### Custom Assets Integration
-Include CSS/JS assets in `__manifest__.py`:
+The project uses a custom CSS file to apply UI fixes. This file is registered in the `__manifest__.py`.
 ```python
 'assets': {
     'web.assets_backend': [
@@ -237,22 +241,10 @@ Include CSS/JS assets in `__manifest__.py`:
 }
 ```
 
-### Data Loading Order (in `__manifest__.py`)
-1. Security files first (`security/*.xml`, `security/*.csv`)
-2. Data files (`data/*.xml`) 
-3. Views (`views/*.xml`)
-4. Actions and menus last
-
 ### Common Pitfalls - UPDATED FOR NEW ARCHITECTURE
-- **Model architecture**: Use `_name = 'library.book'` for new standalone models, not product inheritance
-- **Field tracking**: Add `tracking=True` to fields you want in chatter history
-- **Kanban stages**: Require `group_expand` method with signature `(self, stages, domain)` in Odoo 18
-- **View attributes**: Use direct syntax `readonly="condition"` instead of deprecated `attrs` in Odoo 18
-- **View modes**: Use `list` instead of deprecated `tree` in view_mode definitions
-- **Chatter integration**: Use `<chatter/>` tag instead of manual message field definitions
-- **Required field constraints**: Use `ondelete='restrict'` with `required=True`, not `ondelete='set null'`
-- **PostgreSQL dependency**: Always verify service is running before Odoo start
-- **NO PRODUCT DEPENDENCIES**: Avoid any product.template or product.product references in new code
+- **Do not re-introduce `product` dependencies**: All book logic should be self-contained in `library.book`.
+- **Menu Organization**: Follow the `Operations`, `Catalogs`, `Configuration` structure for any new menu items.
+- **Hiding UI Elements**: Prefer CSS over `xpath` for removing dynamically added elements from other modules
 
 ## Module Installation
 - Use `./start_odoo.sh` option 5 for interactive module installation
