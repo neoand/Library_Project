@@ -149,6 +149,13 @@ class LibraryBook(models.Model):
             if rec.isbn and len(rec.isbn) not in (10, 13):
                 raise ValidationError('ISBN must be either 10 or 13 characters long.')
 
+    @api.constrains('pages')
+    def _check_positive_pages(self):
+        """Pages must be a positive number."""
+        for rec in self:
+            if rec.pages < 0:
+                raise ValidationError('Number of pages must be positive.')
+
     # Sobrescrevendo métodos padrão
     @api.model_create_multi
     def create(self, vals_list):

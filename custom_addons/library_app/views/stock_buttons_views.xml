@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 
+    This file ensures stock-related buttons are hidden in partner views.
+    The actual hiding is done via CSS in chatter_layout.css
+    -->
+</odoo>

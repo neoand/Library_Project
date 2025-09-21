@@ -93,4 +93,23 @@
  * - Correção da largura excessiva da coluna de atividades (~40%)
  * - Aplicação da nova sintaxe <chatter/> para Odoo 18
  * - Adição de responsividade para diferentes tamanhos de tela
+ * - 2025-09-21: Ocultação de botões do módulo stock na view de partner
  */
+
+/* ========================================================================== 
+   Stock Module Button Hiding
+   ========================================================================== */
+
+/* Hide the Lot/Serial Numbers button from partner view */
+.o_form_view .oe_button_box .oe_stat_button[name="action_view_stock_lots"] {
+    display: none !important;
+}
+
+/* Alternative selectors for different stock buttons */
+.oe_stat_button .o_stat_text:contains("Lot/Serial Numbers") {
+    display: none !important;
+}
+
+button[name="action_view_stock_lots"] {
+    display: none !important;
+}

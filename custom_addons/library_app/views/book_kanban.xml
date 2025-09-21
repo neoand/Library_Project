@@ -13,6 +13,10 @@
         <field name="loan_count"/>
         <field name="stage_id"/>
         <field name="user_id"/>
+        <field name="book_status"/>
+        <field name="total_copies"/>
+        <field name="available_copies"/>
+        <field name="copies_on_loan"/>
         <templates>
           <t t-name="card">
             <div class="o_kanban_card">
@@ -28,11 +32,23 @@
                   <field name="author_id"/>
                 </div>
                 <div>
+                  <span>Status: </span>
+                  <field name="book_status"/>
+                </div>
+                <div>
+                  <span>Available: </span>
+                  <field name="available_copies"/> / <field name="total_copies"/>
+                </div>
+                <div t-if="record.copies_on_loan.raw_value > 0">
+                  <span>On Loan: </span>
+                  <field name="copies_on_loan"/>
+                </div>
+                <div>
                   <span>Published: </span>
                   <field name="date_published"/>
                 </div>
                 <div>
-                  <span>Loans: </span>
+                  <span>Total Loans: </span>
                   <field name="loan_count"/>
                 </div>
               </div>

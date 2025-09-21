@@ -121,7 +121,7 @@
                 <field name="user_id"/>
                 <field name="active"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card">
                             <div class="oe_kanban_content">
                                 <div class="row">
@@ -134,15 +134,15 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-12">
-                                        <i class="fa fa-code"/> <field name="code"/>
+                                        <i class="fa fa-code" title="Category Code"/> <field name="code"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-6">
-                                        <i class="fa fa-book"/> <field name="book_count"/> books
+                                        <i class="fa fa-book" title="Total Books"/> <field name="book_count"/> books
                                     </div>
                                     <div class="col-6">
-                                        <i class="fa fa-user"/> <field name="user_id"/>
+                                        <i class="fa fa-user" title="Category Manager"/> <field name="user_id"/>
                                     </div>
                                 </div>
                             </div>

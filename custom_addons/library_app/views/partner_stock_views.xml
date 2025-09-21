@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Ocultar botão de lotes/números de série da visualização de parceiro -->
+    <record id="library_res_partner_view_form" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.library.hide.stock</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Remove o botão de lotes/números de série -->
+            <xpath expr="//div[hasclass('oe_button_box')]/button[@name='action_view_related_lot_ids']" position="replace">
+                <!-- Removido botão de lotes/números de série -->
+            </xpath>
+        </field>
+    </record>
+</odoo>

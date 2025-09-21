@@ -43,6 +43,7 @@ Features include:
         'views/book_search.xml',
         'views/book_kanban.xml',
         'views/loan_search.xml',
+        'views/stock_buttons_views.xml',
 
         # Ações
         'views/book_action.xml',

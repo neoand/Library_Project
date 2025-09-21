@@ -74,148 +74,97 @@ class LibraryBookLoan(models.Model):
             if loan.quantity <= 0:
                 raise ValidationError("Quantity must be greater than zero.")
     
-    @api.constrains('book_id', 'quantity', 'state')
+    @api.constrains('book_id', 'state', 'quantity')
     def _check_availability(self):
-        """Valida se há cópias disponíveis para empréstimo."""
+        """Garante que não se empreste mais cópias do que disponível."""
         for loan in self:
-            if loan.state == 'ongoing' and loan.book_id:
-                # Calcular quantas cópias já estão emprestadas (excluindo este empréstimo)
-                other_loans = loan.book_id.loan_ids.filtered(
-                    lambda l: l.state == 'ongoing' and l.id != loan.id
-                )
-                total_on_loan = sum(other_loans.mapped('quantity'))
-                available = loan.book_id.qty_on_hand - total_on_loan
+            if loan.state == 'ongoing' and loan.book_id and loan.quantity:
+                # Calcular total de cópias já emprestadas (excluindo este empréstimo)
+                other_loans = self.search([
+                    ('book_id', '=', loan.book_id.id),
+                    ('state', '=', 'ongoing'),
+                    ('id', '!=', loan.id)
+                ])
+                total_borrowed = sum(other_loans.mapped('quantity'))
                 
-                if loan.quantity > available:
+                # Verificar se a quantidade solicitada excede a disponível
+                available_copies = loan.book_id.total_copies - total_borrowed
+                if loan.quantity > available_copies:
                     raise ValidationError(
-                        f"Not enough copies available. Requested: {loan.quantity}, "
-                        f"Available: {available}, Total copies: {loan.book_id.qty_on_hand}"
+                        f"Não é possível emprestar {loan.quantity} cópia(s) do livro '{loan.book_id.name}'. "
+                        f"Total de cópias: {loan.book_id.total_copies}, "
+                        f"Já emprestadas: {total_borrowed}, "
+                        f"Disponíveis: {available_copies}"
                     )
 
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
-            if not vals.get('return_date'):
-                vals['state'] = 'ongoing'
+        """Sobrescreve o método create para adicionar lógica de negócio."""
         loans = super().create(vals_list)
-        # Criar movimentação de estoque para empréstimos ativos
-        for loan in loans:
-            if loan.state == 'ongoing':
-                loan._create_stock_move_out()
         return loans
-    
+
     def write(self, vals):
-        """Override write to handle stock movements on state changes."""
-        old_states = {loan.id: loan.state for loan in self}
+        """Sobrescreve o método write para adicionar lógica de negócio."""
         result = super().write(vals)
-        
-        if 'state' in vals:
-            for loan in self:
-                old_state = old_states[loan.id]
-                new_state = loan.state
-                
-                # Devolução: criar movimento de entrada
-                if old_state == 'ongoing' and new_state == 'done':
-                    loan._create_stock_move_in()
-                
-                # Perda: criar ajuste de inventário negativo
-                elif old_state == 'ongoing' and new_state == 'lost':
-                    loan._create_stock_move_loss()
-                    
-                # Reativação de empréstimo: criar movimento de saída
-                elif old_state in ['done', 'lost'] and new_state == 'ongoing':
-                    loan._create_stock_move_out()
-        
         return result
+
+    def unlink(self):
+        """Override unlink to handle stock movements on state changes."""
+        for loan in self:
+            if loan.state == 'ongoing':
+                raise ValidationError("Cannot delete an ongoing loan.")
+        return super().unlink()
+
+    def action_return_book(self):
+        """Ação para marcar um livro como devolvido."""
+        self.ensure_one()
+        self.write({
+            'state': 'done',
+            'return_date': fields.Date.today()
+        })
+        
+    def action_lost_book(self):
+        """Ação para marcar um livro como perdido."""
+        self.ensure_one()
+        self.write({'state': 'lost'})
+
+    # Funções de Cômputo
     
-    def _create_stock_move_out(self):
-        """Cria movimento de saída do estoque para empréstimo."""
-        if not self.book_id or self.quantity <= 0:
-            return
-            
-        # Localização de origem (estoque) e destino (empréstimo)
-        source_location = self.env.ref('stock.stock_location_stock')
-        dest_location = self._get_loan_location()
-        
-        move_vals = {
-            'name': f'Loan: {self.book_id.name}',
-            'product_id': self.book_id.id,
-            'product_uom': self.book_id.uom_id.id,
-            'product_uom_qty': self.quantity,
-            'location_id': source_location.id,
-            'location_dest_id': dest_location.id,
-            'origin': f'Loan/{self.id}',
-        }
-        
-        move = self.env['stock.move'].create(move_vals)
-        move._action_confirm()
-        move._action_done()
+    @api.depends('loan_date', 'return_date', 'state')
+    def _compute_loan_duration(self):
+        """Computes loan duration in days.
+
+        - If `return_date` is set: duration = return_date - loan_date
+        - If loan is ongoing: duration = today - loan_date
+        - Otherwise: 0
+        """
+        for record in self:
+            if record.loan_date:
+                end_date = record.return_date or fields.Date.today()
+                delta = end_date - record.loan_date
+                record.loan_duration = max(0, delta.days)
+            else:
+                record.loan_duration = 0
+
+    loan_duration = fields.Integer(
+        string='Loan Duration (days)',
+        compute='_compute_loan_duration',
+        store=True,
+    )
     
-    def _create_stock_move_in(self):
-        """Cria movimento de entrada no estoque para devolução."""
-        if not self.book_id or self.quantity <= 0:
-            return
-            
-        # Localização de origem (empréstimo) e destino (estoque)
-        source_location = self._get_loan_location()
-        dest_location = self.env.ref('stock.stock_location_stock')
-        
-        move_vals = {
-            'name': f'Return: {self.book_id.name}',
-            'product_id': self.book_id.id,
-            'product_uom': self.book_id.uom_id.id,
-            'product_uom_qty': self.quantity,
-            'location_id': source_location.id,
-            'location_dest_id': dest_location.id,
-            'origin': f'Return/{self.id}',
-        }
-        
-        move = self.env['stock.move'].create(move_vals)
-        move._action_confirm()
-        move._action_done()
-    
-    def _create_stock_move_loss(self):
-        """Cria ajuste de inventário negativo para perda."""
-        if not self.book_id or self.quantity <= 0:
-            return
-            
-        # Localização de origem (empréstimo) e destino (perda)
-        source_location = self._get_loan_location()
-        dest_location = self.env.ref('stock.stock_location_scrapped')
-        
-        move_vals = {
-            'name': f'Loss: {self.book_id.name} ({self.loss_type or "Unknown"})',
-            'product_id': self.book_id.id,
-            'product_uom': self.book_id.uom_id.id,
-            'product_uom_qty': self.quantity,
-            'location_id': source_location.id,
-            'location_dest_id': dest_location.id,
-            'origin': f'Loss/{self.id}',
-        }
-        
-        move = self.env['stock.move'].create(move_vals)
-        move._action_confirm()
-        move._action_done()
-    
-    def _get_loan_location(self):
-        """Obtém ou cria a localização virtual para empréstimos."""
-        # Tentar usar a localização criada por dados primeiro
-        try:
-            location = self.env.ref('library_app.stock_location_library_loans')
-        except ValueError:
-            # Se não encontrar, buscar por nome ou criar
-            location = self.env['stock.location'].search([
-                ('name', '=', 'Library Loans'),
-                ('usage', '=', 'internal')
-            ], limit=1)
-            
-            if not location:
-                # Criar localização para empréstimos
-                parent_location = self.env.ref('stock.stock_location_locations')
-                location = self.env['stock.location'].create({
-                    'name': 'Library Loans',
-                    'usage': 'internal',
-                    'location_id': parent_location.id,
-                })
-        
-        return location
+    @api.depends('state', 'expected_return_date')
+    def _compute_is_overdue(self):
+        """Flags loan as overdue when ongoing and today > expected_return_date."""
+        today = fields.Date.today()
+        for record in self:
+            record.is_overdue = bool(
+                record.state == 'ongoing'
+                and record.expected_return_date
+                and today > record.expected_return_date
+            )
+
+    is_overdue = fields.Boolean(
+        string='Is Overdue?',
+        compute='_compute_is_overdue',
+        store=True,
+    )
