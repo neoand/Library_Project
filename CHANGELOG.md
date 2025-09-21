@@ -5,12 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- **Partner Loan Filtering System**: Implemented comprehensive filtering system for `res.partner` to identify borrowers
+  - Added computed fields: `active_loans_count`, `overdue_loans_count`, `on_time_loans_count`
+  - New search filters: "With Active Loans", "With Overdue Loans", "On Time Loans Only"
+  - Statistical buttons in partner form view showing loan counts with direct access to loan records
+  - New "Loan Details" tab in partner form displaying active loans with status information
+  - Dedicated "Borrowers" menu in Library app showing only contacts with active loans
+  - Dynamic visibility: loan-related elements only appear when relevant data exists
+
 ### Fixed
 - Corrected an issue where the module icon was a PNG with an SVG extension, preventing it from rendering correctly. The icon is now a proper PNG and has been resized to 256x256 for better quality.
 - Fixed a series of test failures caused by improper test data cleanup. The tests now correctly handle existing data and all pass successfully.
+- Fixed XPath issues in partner view inheritance to properly locate fields in the base partner tree view
 
-### Added
-- Expanded the test suite to include validation for ISBN format and positive page numbers.
+### Changed
+- Enhanced partner model with loan relationship tracking for better borrower management
+- Improved partner views with loan-specific information and navigation capabilities
 
 ## [1.0.1] - 2025-09-20
 

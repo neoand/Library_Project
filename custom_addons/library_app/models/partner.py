@@ -22,6 +22,35 @@ class ResPartner(models.Model):
         string='Books'
     )
 
+    # Relação com empréstimos
+    loan_ids = fields.One2many(
+        comodel_name='library.book.loan',
+        inverse_name='partner_id',
+        string='Loans'
+    )
+
+    # Métricas de empréstimos
+    active_loans_count = fields.Integer(
+        string="Active Loans",
+        compute='_compute_loan_metrics',
+        store=True,
+        help="Number of ongoing book loans"
+    )
+    
+    overdue_loans_count = fields.Integer(
+        string="Overdue Loans",
+        compute='_compute_loan_metrics',
+        store=True,
+        help="Number of overdue book loans"
+    )
+    
+    on_time_loans_count = fields.Integer(
+        string="On Time Loans",
+        compute='_compute_loan_metrics',
+        store=True,
+        help="Number of ongoing loans that are still on time"
+    )
+
     # Métricas e publicações
     book_count = fields.Integer(
         string="Book Count",
@@ -44,10 +73,53 @@ class ResPartner(models.Model):
                 partner.first_publication = False
                 partner.last_publication = False
 
+    @api.depends('loan_ids.state', 'loan_ids.is_overdue')
+    def _compute_loan_metrics(self):
+        """Computes loan metrics for borrowers."""
+        for partner in self:
+            # Filtrar empréstimos ativos
+            active_loans = partner.loan_ids.filtered(lambda l: l.state == 'ongoing')
+            partner.active_loans_count = len(active_loans)
+            
+            # Filtrar empréstimos em atraso
+            overdue_loans = active_loans.filtered(lambda l: l.is_overdue)
+            partner.overdue_loans_count = len(overdue_loans)
+            
+            # Empréstimos em dia (ativos mas não em atraso)
+            partner.on_time_loans_count = partner.active_loans_count - partner.overdue_loans_count
+
     def toggle_author_status(self):
         """Marca/desmarca como autor."""
         for partner in self:
             partner.is_author = not partner.is_author
+
+    def action_view_active_loans(self):
+        """Abre uma visualização com todos os empréstimos ativos do usuário."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Active Loans - %s' % self.name,
+            'view_mode': 'list,form',
+            'res_model': 'library.book.loan',
+            'domain': [('partner_id', '=', self.id), ('state', '=', 'ongoing')],
+            'context': {'default_partner_id': self.id},
+        }
+
+    def action_view_overdue_loans(self):
+        """Abre uma visualização com todos os empréstimos em atraso do usuário."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Overdue Loans - %s' % self.name,
+            'view_mode': 'list,form',
+            'res_model': 'library.book.loan',
+            'domain': [
+                ('partner_id', '=', self.id), 
+                ('state', '=', 'ongoing'),
+                ('is_overdue', '=', True)
+            ],
+            'context': {'default_partner_id': self.id},
+        }
 
     def action_view_books(self):
         """Abre uma visualização com todos os livros do autor."""

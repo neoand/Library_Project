@@ -42,3 +42,44 @@ INFO lib_neo odoo.modules.registry: Registry loaded in 6.072s
 - Loan system com quantity e loss tracking
 
 Data: 2025-09-20 19:23 - RESOLVIDO ✅
+
+---
+
+## Sessão de 2025-09-21 - Implementação de Sistema de Filtragem de Parceiros com Empréstimos
+
+### ✅ O que implementamos
+- Sistema avançado de acompanhamento de parceiros com empréstimos:
+  - Campos computados: `active_loans_count`, `overdue_loans_count`, `on_time_loans_count`
+  - Filtros de pesquisa: "Com Empréstimos Ativos", "Com Empréstimos Atrasados", "Somente Empréstimos no Prazo"
+  - Botões estatísticos na visão de parceiro com contadores de empréstimos e navegação direta
+  - Menu dedicado "Mutuários" mostrando apenas parceiros com empréstimos ativos
+  - Aba de detalhes de empréstimo com indicadores de status
+  - Visibilidade dinâmica: elementos de empréstimo só aparecem quando o parceiro tem dados relevantes
+
+### Estado atual
+- Módulo carrega sem erros (apenas um aviso externo sobre `confirm.stock.sms`)
+- Vistas sem warnings
+- Sistema de filtragem de parceiros totalmente funcional
+- Documentação atualizada em todos os arquivos relevantes
+
+### Próximas Ações
+1. Implementar `message_post` no `write` de `library.book` para garantir histórico no chatter
+2. Garantir isolamento dos testes de busca (limpeza de dados/domínios mais estritos)
+3. Expandir cobertura de testes para incluir novos filtros de parceiros
+4. Rodar baseline de performance via `dev_tools.sh` opção 4 e registrar em `PERFORMANCE.md`
+
+## Sessão de 2025-09-20 (Noite) - Atualizações e Próximos Passos
+
+### O que fizemos
+- Corrigimos avisos de UI/UX nas views:
+	- Adicionados `title` nos ícones FontAwesome
+	- Substituído `kanban-box` depreciado por `card` nas views Kanban
+- Refatoramos o modelo de empréstimo (`library.book.loan`):
+	- `loan_duration` agora calcula contra "hoje" quando não há `return_date`
+	- `is_overdue` agora considera `expected_return_date` e `state`
+	- Removidas referências residuais a estoque/produto
+- Configuramos testes iniciais e CI:
+	- Testes unitários para livros, empréstimos e parceiros
+	- Workflow do GitHub Actions com PostgreSQL
+
+Autor: GitHub Copilot

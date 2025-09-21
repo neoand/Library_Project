@@ -42,4 +42,12 @@
     parent="menu_library_root"
     action="action_library_book_loan"
     sequence="5"/>
+
+  <!-- Borrowers -->
+  <menuitem
+    id="menu_library_borrowers"
+    name="Borrowers"
+    parent="menu_library_root"
+    action="action_partner_borrowers"
+    sequence="6"/>
 </odoo>

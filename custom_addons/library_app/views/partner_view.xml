@@ -45,8 +45,107 @@
                 invisible="not is_author">
           <field name="book_count" widget="statinfo" string="Books"/>
         </button>
+        
+        <!-- Botões para empréstimos -->
+        <button name="action_view_active_loans"
+                type="object"
+                class="oe_stat_button"
+                icon="fa-bookmark"
+                invisible="active_loans_count == 0">
+          <field name="active_loans_count" widget="statinfo" string="Active Loans"/>
+        </button>
+        
+        <button name="action_view_overdue_loans"
+                type="object"
+                class="oe_stat_button"
+                icon="fa-exclamation-triangle"
+                invisible="overdue_loans_count == 0">
+          <field name="overdue_loans_count" widget="statinfo" string="Overdue"/>
+        </button>
+      </xpath>
+
+      <!-- Adiciona seção de empréstimos -->
+      <xpath expr="//notebook" position="inside">
+        <page string="Loan Details" name="loan_details" invisible="active_loans_count == 0">
+          <group>
+            <group string="Loan Metrics">
+              <field name="active_loans_count" readonly="1"/>
+              <field name="overdue_loans_count" readonly="1"/>
+              <field name="on_time_loans_count" readonly="1"/>
+            </group>
+          </group>
+          <field name="loan_ids" readonly="1">
+            <list>
+              <field name="book_id"/>
+              <field name="loan_date"/>
+              <field name="expected_return_date"/>
+              <field name="state"/>
+              <field name="is_overdue"/>
+            </list>
+          </field>
+        </page>
       </xpath>
 
     </field>
   </record>
+
+  <!-- List view para res.partner com informações de empréstimos -->
+  <record id="view_res_partner_loan_list" model="ir.ui.view">
+    <field name="name">res.partner.loan.list.inherit</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_tree"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='phone']" position="after">
+        <field name="active_loans_count"/>
+        <field name="overdue_loans_count"/>
+        <field name="on_time_loans_count"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- Search view para res.partner com filtros de empréstimos -->
+  <record id="view_res_partner_loan_search" model="ir.ui.view">
+    <field name="name">res.partner.loan.search.inherit</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_res_partner_filter"/>
+    <field name="arch" type="xml">
+      <xpath expr="//filter[@name='inactive']" position="after">
+        <separator/>
+        <filter name="has_active_loans" 
+                string="With Active Loans"
+                domain="[('active_loans_count', '>', 0)]"/>
+        <filter name="has_overdue_loans" 
+                string="With Overdue Loans"
+                domain="[('overdue_loans_count', '>', 0)]"/>
+        <filter name="has_ontime_loans" 
+                string="On Time Loans Only"
+                domain="[('active_loans_count', '>', 0), ('overdue_loans_count', '=', 0)]"/>
+        <separator/>
+      </xpath>
+      
+      <xpath expr="//group[@name='group_by']" position="inside">
+        <filter name="group_by_loan_status" 
+                string="Loan Status" 
+                context="{'group_by': 'active_loans_count'}"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- Action para contactos com empréstimos -->
+  <record id="action_partner_borrowers" model="ir.actions.act_window">
+    <field name="name">Borrowers</field>
+    <field name="res_model">res.partner</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('active_loans_count', '>', 0)]</field>
+    <field name="context">{'default_is_company': False}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        No borrowers found!
+      </p>
+      <p>
+        This view shows only contacts who have active book loans.
+      </p>
+    </field>
+  </record>
+
 </odoo>

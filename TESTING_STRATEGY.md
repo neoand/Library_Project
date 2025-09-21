@@ -91,6 +91,61 @@ class TestLibraryBook(TransactionCase):
         self.assertEqual(book.available_copies, 3)
 ```
 
+```python
+# tests/test_partner_loan_filtering.py
+from odoo.tests.common import TransactionCase
+from datetime import datetime, timedelta
+
+class TestPartnerLoanFiltering(TransactionCase):
+    
+    def setUp(self):
+        super().setUp()
+        self.Partner = self.env['res.partner']
+        self.Book = self.env['library.book']
+        self.Loan = self.env['library.book.loan']
+        
+        # Create test data
+        self.book = self.Book.create({'name': 'Test Book'})
+        self.borrower = self.Partner.create({'name': 'Test Borrower'})
+        
+        # Create loans with different states
+        today = datetime.now().date()
+        self.on_time_loan = self.Loan.create({
+            'book_id': self.book.id,
+            'partner_id': self.borrower.id,
+            'expected_return_date': (today + timedelta(days=10)).strftime('%Y-%m-%d'),
+            'state': 'ongoing'
+        })
+        
+    def test_loan_count_metrics(self):
+        """Test loan count computed fields"""
+        self.assertEqual(self.borrower.active_loans_count, 1)
+        self.assertEqual(self.borrower.on_time_loans_count, 1)
+        self.assertEqual(self.borrower.overdue_loans_count, 0)
+        
+        # Make loan overdue
+        past_date = (datetime.now().date() - timedelta(days=5)).strftime('%Y-%m-%d')
+        self.on_time_loan.write({'expected_return_date': past_date})
+        
+        # Check metrics updated
+        self.assertEqual(self.borrower.active_loans_count, 1)
+        self.assertEqual(self.borrower.on_time_loans_count, 0)
+        self.assertEqual(self.borrower.overdue_loans_count, 1)
+    
+    def test_partner_search_filters(self):
+        """Test search filters for borrowers"""
+        # Search for partners with active loans
+        partners_with_loans = self.Partner.search([('active_loans_count', '>', 0)])
+        self.assertIn(self.borrower, partners_with_loans)
+        
+        # Search for partners with overdue loans
+        self.on_time_loan.write({
+            'expected_return_date': (datetime.now().date() - timedelta(days=5)).strftime('%Y-%m-%d')
+        })
+        overdue_partners = self.Partner.search([('overdue_loans_count', '>', 0)])
+        self.assertIn(self.borrower, overdue_partners)
+```
+
 ### 2. **Integration Tests** 🔗
 Test interaction between components.
 

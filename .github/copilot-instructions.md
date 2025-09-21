@@ -103,7 +103,7 @@ custom_addons/library_app/
 ├── models/                  
 │   ├── library_book.py     # Main entity (standalone, no product inheritance)
 │   ├── loan.py             # Loan tracking system
-│   ├── partner.py          # Extends res.partner for authors
+│   ├── partner.py          # Extends res.partner for authors AND borrower management
 │   ├── stage.py            # Workflow stages  
 │   └── category.py         # Book categories (custom, not product.category)
 ├── views/                   # UI definitions (separate from actions)
@@ -123,12 +123,22 @@ custom_addons/library_app/
 ```
 
 ### Key Design Patterns
-- **Extend core models**: `res.partner` extended with `is_author` boolean for filtering
+- **Extend core models**: `res.partner` extended with `is_author` boolean for filtering AND borrower loan tracking
 - **Domain filters**: `[('is_company', '=', False), ('is_author', '=', True)]` for author selection  
 - **No product integration**: Books are standalone entities with custom categorization
 - **Loan system**: Full tracking with `library.book.loan` model linking books to borrowers
+- **Borrower management**: Advanced partner filtering system with loan metrics and status tracking
 - **Status management**: Computed fields like `book_status` based on active loans (`available`/`borrowed`/`lost`)
 - **Independent workflow**: No stock/inventory dependencies, pure library logic
+
+### Partner Loan Management System (IMPLEMENTED)
+- **Computed loan metrics**: `active_loans_count`, `overdue_loans_count`, `on_time_loans_count` fields with `store=True` for performance
+- **Search filters**: "Com Empréstimos Ativos", "Com Empréstimos Atrasados", "Somente Empréstimos no Prazo"
+- **Statistical buttons**: Clickable loan counters in partner form view with direct navigation to filtered loan views
+- **Borrower menu**: Dedicated "Mutuários" menu showing only partners with active loans
+- **Loan details tab**: Complete loan information display with status indicators and color coding
+- **Dynamic visibility**: Loan elements only appear when partner has relevant loan data
+- **Performance optimized**: All computations stored in database with proper triggers for updates
 
 ### View Patterns
 - **Kanban views** require `group_expand='_read_group_stage_ids'` in stage field
@@ -254,6 +264,8 @@ Include CSS/JS assets in `__manifest__.py`:
 - **Log level**: Set to `debug` for detailed error information  
 - **Access via**: http://localhost:8071 (admin/admin)
 - **Database listing**: Enabled for easy database switching
+- **Test files**: Comprehensive tests including unit tests for partner loan filtering
+- **Test commands**: Run specific tests with `--test-file=tests/test_partner_loan_filtering.py`
 
 ## 🎯 Resources Available for Future Development
 
